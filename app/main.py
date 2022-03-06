@@ -16,13 +16,13 @@ import psycopg2
 
 app=FastAPI()
 
-#table "ejemplo-user"
+#table db_persona
 NAME_KEY="name"
 MAIL_KEY="mail"
-Qselect='SELECT * FROM public."ejemplo-user"'
-Qinsert='INSERT INTO public."ejemplo-user"(name, mail) VALUES (%s, %s)'
-Qupdate='UPDATE public."ejemplo-user" SET mail=%s  WHERE name=%s;'
-Qdelete='DELETE FROM public."ejemplo-user" name=%s;'
+Qselect='SELECT * FROM public.db_persona'
+Qinsert='INSERT INTO public.db_persona(name, mail) VALUES (%s, %s)'
+# Qupdate='UPDATE public.db_persona SET mail=%s  WHERE name=%s;'
+# Qdelete='DELETE FROM public.db_persona name=%s;'
 
 @app.get("/")
 def home():
@@ -47,6 +47,7 @@ def get_users_tests():
     print(users)
     for user in users:
         user = UserBase(
+            idper=user["idper"],
             name=user[NAME_KEY].strip(),
             mail=user[MAIL_KEY].strip() if user[MAIL_KEY] else None
         )
@@ -70,23 +71,22 @@ def post_a_user(user_register: UserBase=Body(...)):
     connect
     cursor = db.cursor
     user_dict=user_register.dict()
+    user_dict["idper"]=str(user_dict["idper"])
     user_dict[NAME_KEY]=str(user_dict[NAME_KEY])
     user_dict[MAIL_KEY]=str(user_dict[MAIL_KEY])
-    user=(user_dict[NAME_KEY],user_dict[MAIL_KEY])
-
+    user=(user_dict["idper"],user_dict[NAME_KEY],user_dict[MAIL_KEY])
+    user2=(user_dict[NAME_KEY],user_dict[MAIL_KEY])
     cursor.execute(Qselect)
-    cursor.execute(Qinsert, user)
+    cursor.execute(Qinsert, user2)
     db.commit_db
     cursor.execute(Qselect)
     users = cursor.fetchall()
     print(users)
     for user in users:
         user = UserBase(
-            # id=user['id'],
+            idper=user["idper"],
             name=user[NAME_KEY].strip(),
             mail=user[MAIL_KEY].strip() if user[MAIL_KEY] else None
-            # is_active=user['is_active'],
-            # status=user['status']
         )
         users_list.append(user)
     db.disconnect_db()
@@ -98,64 +98,5 @@ def post_a_user(user_register: UserBase=Body(...)):
     status_code=status.HTTP_200_OK,
     summary="Delete a user"
 )
-def delete_a_user(name:str
-    # Body(
-    # ...,
-    # title="name of the user",
-    # example="Nestor"
-    # )
-    ):
-
-
-    print("=delete user and show users=")
-    users_list = []
-    db = Database()
-    db.connect_db()
-    cursor = db.cursor    
-    cursor.execute(Qselect)
-    users = cursor.fetchall()
-    for user in users:
-        user = UserBase(
-            name=user[NAME_KEY].strip(),
-            mail=user[MAIL_KEY].strip() if user[MAIL_KEY] else None
-        )
-        users_list.append(user)
-
-    for index, user_dict in users_list:
-        if user_dict[NAME_KEY]==name:
-            users_list.pop(index)
-    
-    db.disconnect_db()
-    return users_list
-
-    
-    # users_list = []
-    # db = Database()
-    # connect=db.connect_db()
-    # connect
-    # cursor = db.cursor
-    # #nombre=str(name)
-    # user_dict=name.dict()
-    # user_dict[NAME_KEY]=str(user_dict[NAME_KEY])
-    # user_name=(user_dict[NAME_KEY])
-    # user_dict[MAIL_KEY]=str(user_dict[MAIL_KEY])
-    # user=(user_dict[NAME_KEY],user_dict[MAIL_KEY])
-    # cursor.execute(Qselect)
-    # cursor.execute(Qdelete, user_name)
-    # db.commit_db
-    # cursor.execute(Qselect)
-    # users = cursor.fetchall()
-    # print(users)
-    # for user in users:
-    #     user = UserBase(
-    #         # id=user['id'],
-    #         name=user[NAME_KEY].strip(),
-    #         mail=user[MAIL_KEY].strip() if user[MAIL_KEY] else None
-    #         # is_active=user['is_active'],
-    #         # status=user['status']
-    #     )
-    #     users_list.append(user)
-
-    
-    # db.disconnect_db()
-    # return users_list
+def delete_a_user():
+    pass

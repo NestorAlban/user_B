@@ -43,6 +43,9 @@ class query():
 
 class UserBase(BaseModel):
     # user_id: UUID = Field(...)
+    idper: int= Field(
+        ...
+    )
     mail: EmailStr = Field(
         ...
         )
@@ -52,12 +55,11 @@ class UserBase(BaseModel):
         max_length=100
     )
 
-db=Database()
-#print(db)
-db.connect_db()
-cur=db.cursor
-cur.execute('SELECT * FROM public."ejemplo-user"')
-# b=db.cursor
-users = cur.fetchall()
-print(users)
+# db=Database()
+# #print(db)
+# db.connect_db()
+# cur=db.cursor
+# # b=db.cursor
+# users = cur.fetchall()
+# print(users)
 #print (connect_db())
