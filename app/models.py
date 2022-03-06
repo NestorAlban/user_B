@@ -34,10 +34,12 @@ class Database:
     def commit_db(self):
         self.connection.commit()
 
-    select='SELECT * FROM public."ejemplo-user"'
-    insert='INSERT INTO public."ejemplo-user"(name, mail) VALUES (%s, %s)'
-    update='UPDATE public."ejemplo-user" SET mail=%s  WHERE name=%s;'
+    
 
+class query():
+    qselect='SELECT * FROM public."ejemplo-user"'
+    qinsert='INSERT INTO public."ejemplo-user"(name, mail) VALUES (%s, %s)'
+    qupdate='UPDATE public."ejemplo-user" SET mail=%s  WHERE name=%s;'
 
 class UserBase(BaseModel):
     # user_id: UUID = Field(...)
