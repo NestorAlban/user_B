@@ -11,6 +11,7 @@ class Database:
     def __init__(self):
         self.cursor = None
         self.connection = None
+        self.rows_count=0
     
     def connect_db(self):
         try:
@@ -33,6 +34,10 @@ class Database:
     
     def commit_db(self):
         self.connection.commit()
+    
+    # def count(self):
+    #     self.rows_count=self.cursor.rowcount
+    #     self.rows_number=self.cursor.rownumber
 
     
 

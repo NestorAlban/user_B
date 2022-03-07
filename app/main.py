@@ -14,6 +14,7 @@ from typing import List
 
 import psycopg2
 
+
 app=FastAPI()
 
 #table db_persona
@@ -24,6 +25,7 @@ Qselect='SELECT * FROM public.db_persona'
 Qinsert='INSERT INTO public.db_persona(name, mail) VALUES (%s, %s)'
 Qupdate='UPDATE public.db_persona SET name=%s, mail=%s  WHERE idper=%s'
 Qdelete='DELETE FROM public.db_persona WHERE idper=%s'
+
 
 @app.get("/")
 def home():
@@ -45,19 +47,41 @@ def get_users_tests():
     cursor = db.cursor    
     cursor.execute(Qselect)
     users = cursor.fetchall()
-    print(users)
+    # rows=db.rows_count
+    rows_co=0
+    # print(users, rows)
     for user in users:
         user = UserBase(
             idper=user[ID_KEY],
             name=user[NAME_KEY].strip(),
             mail=user[MAIL_KEY].strip() if user[MAIL_KEY] else None
         )
+        rows_co+=1
         users_list.append(user)
     db.disconnect_db()
-    
+    print(users, rows_co)
     return users_list
 
+@app.get(
+    path="/usertests_simple",
+    response_model=List[UserBase],
+    status_code=status.HTTP_200_OK,
+    summary="Show all User tests",
+    )
+def get_users_tests():
+    print("=get users=")
+    db = Database()
+    db.connect_db()
+    cursor = db.cursor    
+    cursor.execute(Qselect)
+    users = cursor.fetchall()
+    up_rows=cursor.rowcount
+    db.disconnect_db()
+    print(users,up_rows)
+    return users
 
+
+#Create an user
 @app.post(
     path="/registeruser",
     response_model=list[UserBase],
@@ -93,11 +117,39 @@ def post_a_user(user_register: UserBase=Body(...)):
     db.disconnect_db()
     return users_list
 
+    ##same as the one before
+@app.post(
+    path="/registeruser_simple",
+    response_model=list[UserBase],
+    status_code=status.HTTP_201_CREATED,
+    summary="Register a user"
+)
+def post_a_user(user_register: UserBase=Body(...)):
+    print("=register user and show users=")
+    db = Database()
+    db.connect_db()
+    cursor = db.cursor
+    user_dict=user_register.dict()
+    user_dict[ID_KEY]=str(user_dict[ID_KEY])
+    user_dict[NAME_KEY]=str(user_dict[NAME_KEY])
+    user_dict[MAIL_KEY]=str(user_dict[MAIL_KEY])
+    user2=(user_dict[NAME_KEY],user_dict[MAIL_KEY])
+    cursor.execute(Qselect)
+    cursor.execute(Qinsert, user2)
+    db.commit_db()
+    cursor.execute(Qselect)
+    users = cursor.fetchall()
+    print(users)
+    db.disconnect_db()
+    return users
+
+
+#Update an user (in process)
 @app.put(
-    path="/users/{user_id}/usersregisteruser",
+    path="/users/{user_id}/usersupdate",
     response_model=list[UserBase],
     status_code=status.HTTP_200_OK,
-    summary="Update a user"
+    summary="Update user"
 )
 def update_a_user(user_update: UserBase=Body(...)):
     users_list = []
@@ -124,9 +176,47 @@ def update_a_user(user_update: UserBase=Body(...)):
             mail=user[MAIL_KEY].strip() if user[MAIL_KEY] else None
         )
         users_list.append(user)
+    
     db.disconnect_db()
     return users_list
 
+##in process
+@app.put(
+    path="/users/{user_id}/usersupdate_id",
+    response_model=list[UserBase],
+    status_code=status.HTTP_200_OK,
+    summary="Update id"
+)
+def update_a_user(user_update: UserBase=Body(...)):
+    users_list = [] 
+    db = Database()
+    db.connect_db()
+    cursor = db.cursor
+    user_dict=user_update.dict()
+    user_dict[ID_KEY]=str(user_dict[ID_KEY])
+    user_dict[NAME_KEY]=str(user_dict[NAME_KEY])
+    user_dict[MAIL_KEY]=str(user_dict[MAIL_KEY])
+    user=(user_dict[ID_KEY],user_dict[NAME_KEY],user_dict[MAIL_KEY])
+    user2=(user_dict[NAME_KEY],user_dict[MAIL_KEY],user_dict[ID_KEY])
+    cursor.execute(Qselect)
+    cursor.execute(Qupdate, user2)
+    db.commit_db()
+    cursor.execute(Qselect)
+    users = cursor.fetchall()
+    print(users)
+    for user in users:
+        user = UserBase(
+            idper=user[ID_KEY],
+            name=user[NAME_KEY].strip(),
+            mail=user[MAIL_KEY].strip() if user[MAIL_KEY] else None
+        )
+        users_list.append(user)
+    
+    db.disconnect_db()
+    return users_list
+
+
+#Delete an user
 @app.delete(
     path="/users/{user_id}/deleteuser",
     response_model=list[UserBase],
@@ -159,3 +249,29 @@ def delete_a_user(user_delete: UserBase=Body(...)):
         users_list.append(user)
     db.disconnect_db()
     return users_list
+
+##same as the one before (can use 2 digits in id)
+@app.delete(
+    path="/users/{user_id}/deleteuser_simple",
+    response_model=list[UserBase],
+    status_code=status.HTTP_200_OK,
+    summary="Delete a user"
+)
+def delete_a_user(user_delete: UserBase=Body(...)):
+    db = Database()
+    db.connect_db()
+    cursor = db.cursor
+    user_dict=user_delete.dict()
+    user_dict[ID_KEY]=str(user_dict[ID_KEY])
+    user_dict[NAME_KEY]=str(user_dict[NAME_KEY])
+    user_dict[MAIL_KEY]=str(user_dict[MAIL_KEY])
+    user3=(user_dict[ID_KEY])
+    cursor.execute(Qselect)
+    cursor.execute('DELETE FROM public.db_persona WHERE idper='+ user3)
+    db.commit_db()
+    cursor.execute(Qselect)
+    users = cursor.fetchall()
+    up_rows=cursor.rowcount
+    db.disconnect_db()
+    print(users,up_rows)
+    return users
