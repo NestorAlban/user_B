@@ -23,7 +23,7 @@ MAIL_KEY="mail"
 Qselect='SELECT * FROM public.db_persona'
 Qinsert='INSERT INTO public.db_persona(name, mail) VALUES (%s, %s)'
 Qupdate='UPDATE public.db_persona SET name=%s, mail=%s  WHERE idper=%s'
-# Qdelete='DELETE FROM public.db_persona name=%s'
+Qdelete='DELETE FROM public.db_persona WHERE idper=%s'
 
 @app.get("/")
 def home():
@@ -79,7 +79,7 @@ def post_a_user(user_register: UserBase=Body(...)):
     user2=(user_dict[NAME_KEY],user_dict[MAIL_KEY])
     cursor.execute(Qselect)
     cursor.execute(Qinsert, user2)
-    db.commit_db
+    db.commit_db()
     cursor.execute(Qselect)
     users = cursor.fetchall()
     print(users)
@@ -113,7 +113,7 @@ def update_a_user(user_update: UserBase=Body(...)):
     user2=(user_dict[NAME_KEY],user_dict[MAIL_KEY],user_dict[ID_KEY])
     cursor.execute(Qselect)
     cursor.execute(Qupdate, user2)
-    db.commit_db
+    db.commit_db()
     cursor.execute(Qselect)
     users = cursor.fetchall()
     print(users)
@@ -133,5 +133,29 @@ def update_a_user(user_update: UserBase=Body(...)):
     status_code=status.HTTP_200_OK,
     summary="Delete a user"
 )
-def delete_a_user():
-    pass
+def delete_a_user(user_delete: UserBase=Body(...)):
+    users_list = []
+    db = Database()
+    connect=db.connect_db()
+    connect
+    cursor = db.cursor
+    user_dict=user_delete.dict()
+    user_dict[ID_KEY]=str(user_dict[ID_KEY])
+    user_dict[NAME_KEY]=str(user_dict[NAME_KEY])
+    user_dict[MAIL_KEY]=str(user_dict[MAIL_KEY])
+    user3=(user_dict[ID_KEY])
+    cursor.execute(Qselect)
+    cursor.execute(Qdelete, user3)
+    db.commit_db()
+    cursor.execute(Qselect)
+    users = cursor.fetchall()
+    print(users)
+    for user in users:
+        user = UserBase(
+            idper=user[ID_KEY],
+            name=user[NAME_KEY].strip(),
+            mail=user[MAIL_KEY].strip() if user[MAIL_KEY] else None
+        )
+        users_list.append(user)
+    db.disconnect_db()
+    return users_list
