@@ -21,8 +21,8 @@ NAME_KEY="name"
 MAIL_KEY="mail"
 Qselect='SELECT * FROM public.db_persona'
 Qinsert='INSERT INTO public.db_persona(name, mail) VALUES (%s, %s)'
-# Qupdate='UPDATE public.db_persona SET mail=%s  WHERE name=%s;'
-# Qdelete='DELETE FROM public.db_persona name=%s;'
+# Qupdate='UPDATE public.db_persona SET name=%s, mail=%s  WHERE name=%s'
+# Qdelete='DELETE FROM public.db_persona name=%s'
 
 @app.get("/")
 def home():
