@@ -60,6 +60,9 @@ class UserBase(BaseModel):
         max_length=100
     )
 
+class  UserActivate(UserBase):
+    active: bool
+
 # db=Database()
 # #print(db)
 # db.connect_db()

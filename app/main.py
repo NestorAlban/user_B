@@ -1,7 +1,5 @@
 
-from operator import index
-from select import select
-from turtle import title
+
 from fastapi import FastAPI
 from .models import UserBase, Database, query
 
