@@ -15,7 +15,7 @@ fastapi to create a user
 2. Run fastapi
     - Run with uvicorn
         ```shell
-        python -m uvicorn app.main:app --host 0.0.0.0
+        python -m uvicorn app.main:app --host localhost --reload
         ```
 
 
