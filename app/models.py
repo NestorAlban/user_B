@@ -42,8 +42,8 @@ class Database:
 class UserBase(BaseModel):
     # user_id: UUID = Field(...)
     idper: int = Field(...)
-    mail: EmailStr = Field(...)
     name: str = Field(..., min_length=1, max_length=100)
+    mail: EmailStr = Field(...)
 
 
 class UserActivate(UserBase):
