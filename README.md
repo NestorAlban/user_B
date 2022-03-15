@@ -21,3 +21,8 @@ fastapi to create a user
     ```shell
     pytest test/test_client.py -rP
     ´´´
+4. commit
+    - Commit with commitizen
+        ```shell
+        cz commit
+        ´´´
