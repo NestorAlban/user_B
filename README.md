@@ -17,6 +17,10 @@ fastapi to create a user
         ```shell
         python -m uvicorn app.main:app --host localhost --reload
         ```
+    - Run with
+        ```shell
+        python app/main.py
+        ```
 3. Run pytest
     ```shell
     pytest test/test_client.py -rP

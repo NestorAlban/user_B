@@ -1,3 +1,6 @@
 venv/
 __pycache__
 .python-version
+.vscode/
+.env
+postgres-data/
