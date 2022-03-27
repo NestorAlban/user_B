@@ -38,9 +38,7 @@ def get_users(id: int = Path(..., title="User ID")):
     try:
         user_getter = OneUserGetter()
         print("=====================================================")
-        users = user_getter.run()
-        idstr = user_getter.run(idstr)
-        idstr = str(id)
+        users = user_getter.run(id)
         print(users, "1")
         print("=====================================================")
         users_response = [GetUsersResponse(**user.dict()) for user in users]

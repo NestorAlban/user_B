@@ -5,7 +5,9 @@ GET_ALL_ACTIVE_USERS_QUERY = (
 CREATE_USER_QUERY = """
 INSERT INTO public.user_database (name, email, is_active, created_at, updated_at) VALUES (%s, %s, %s, %s, %s)
 """
-
+GET_ONE_USER_QUERY = """
+SELECT * FROM public.user_database WHERE id=
+"""
 # ID_KEY = "id"
 # NAME_KEY = "name"
 # MAIL_KEY = "email"

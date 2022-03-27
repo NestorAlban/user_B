@@ -7,12 +7,11 @@ class OneUserGetter:
     def __init__(self):
         pass
 
-    def run(self) -> List[User]:
+    def run(self, id: int) -> List[User]:
         users = []
         user_service = UserService()
         print("=====================================================")
-        users = user_service.get_one_user()
-        idstr = user_service.get_one_user(idstr)
+        users = user_service.get_one_user(id)
         print(users, "2")
         print("=====================================================")
         return users

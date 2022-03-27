@@ -1,5 +1,6 @@
 import logging
-from fastapi import Body
+from msilib.schema import Patch
+from fastapi import Body, Path
 import psycopg2
 import os
 
@@ -8,7 +9,7 @@ from typing import List
 
 from psycopg2 import Error
 from psycopg2.extras import RealDictCursor
-from app.database.queries import CREATE_USER_QUERY, GET_ALL_ACTIVE_USERS_QUERY
+from app.database.queries import CREATE_USER_QUERY, GET_ALL_ACTIVE_USERS_QUERY, GET_ONE_USER_QUERY
 
 logger = logging.getLogger(__name__)
 logger.level = logger.setLevel(logging.INFO)
@@ -77,3 +78,12 @@ class Database:
         except Exception as e:
             logging("DB ERROR", e)
         return success
+
+    def get_one_user(self, id: int = Path(..., title="User ID")) -> List[RealDictCursor]:
+        users = []
+        query = GET_ONE_USER_QUERY
+        self.connect()
+        self.cursor.execute(query + str(id))
+        users = self.cursor.fetchall()
+        self.disconnect()
+        return users

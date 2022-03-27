@@ -22,3 +22,13 @@ class UserService:
     def create_user(self, id: int, name: str, email: str, is_active: bool, created_at: str, updated_at: str) -> bool:
         success = self.database.create_new_user(id, name, email, is_active, created_at, updated_at)
         return success
+
+    def get_one_user(self, id: int) -> List[User]:
+        users = []
+        print("=====================================================")
+        users_dict_list = self.database.get_one_user(id)
+        print(users_dict_list, "3")
+        print("=====================================================")
+        users = [User(**user_dict) for user_dict in users_dict_list]
+        print(users)
+        return users
