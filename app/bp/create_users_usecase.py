@@ -9,14 +9,17 @@ class UserCreatorParams(BaseModel):
     id: int = Field(...)
     name: str = Field(...)
     email: str = Field(...)
+    is_active: bool = Field(...)
 
 
 class UserCreator:
     def __init__(self):
         pass
 
-    def run(self, params: UserCreatorParams) -> bool:
+    def run(self, params: User) -> bool:
         success = False
         user_service = UserService()
-        success = user_service.create_user(params.id, params.name, params.email)
+        success = user_service.create_user(
+            params.id, params.name, params.email, params.is_active, params.created_at, params.updated_at
+        )
         return success

@@ -1,4 +1,5 @@
 import logging
+from fastapi import Body
 import psycopg2
 import os
 
@@ -62,12 +63,14 @@ class Database:
         self.disconnect()
         return users
 
-    def create_new_user(self, id: int, name: str, email: str) -> bool:
+    def create_new_user(
+        self, id: int, name: str, email: str, is_active: bool, created_at: str, updated_at: str
+    ) -> bool:
         success = False
         try:
             query = CREATE_USER_QUERY
             self.connect()
-            self.cursor.execute(query, (id, name, email))
+            self.cursor.execute(query, (name, email, is_active, created_at, updated_at))
             self.commit()
             self.disconnect()
             success = True

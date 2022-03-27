@@ -19,6 +19,6 @@ class UserService:
         print(users)
         return users
 
-    def create_user(self, id: int, name: str, email: str) -> bool:
-        success = self.database.create_new_user(id, name, email)
+    def create_user(self, id: int, name: str, email: str, is_active: bool, created_at: str, updated_at: str) -> bool:
+        success = self.database.create_new_user(id, name, email, is_active, created_at, updated_at)
         return success

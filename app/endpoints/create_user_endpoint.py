@@ -27,8 +27,9 @@ SUCCESS_KEY: Final = "success"
 
 class CreateUserInput(BaseModel):
     id: int = Field(...)
-    name: str = Field(...)
-    email: str = Field(...)
+    name: str = Field(default="Example")
+    email: str = Field(default="example@email.com")
+    is_active: bool = Field(default=True)
 
 
 @router.post(
@@ -38,12 +39,19 @@ class CreateUserInput(BaseModel):
     summary=CREATE_USER_ENDPOINT_SUMMARY,
     tags=["Users"],
 )
-def create_user(new_user_data: CreateUserInput):
+def create_user(new_user_data: User):
     success = False
     try:
         user_creator = UserCreator()
         success = user_creator.run(
-            UserCreatorParams(id=new_user_data.id, name=new_user_data.name, email=new_user_data.email)
+            User(
+                id=new_user_data.id,
+                name=new_user_data.name,
+                email=new_user_data.email,
+                is_active=new_user_data.is_active,
+                created_at=new_user_data.created_at,
+                updated_at=new_user_data.updated_at,
+            )
         )
     except Exception as error:
         logging.error(CREATE_USER_ERROR_MESSAGE, error)

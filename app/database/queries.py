@@ -1,9 +1,9 @@
 # Database = user_database
 GET_ALL_ACTIVE_USERS_QUERY = (
-    "SELECT id, name, email, created_at, updated_at,is_active FROM public.user WHERE is_active=true"
+    "SELECT id, name, email, created_at, updated_at,is_active FROM public.user_database WHERE is_active=true"
 )
 CREATE_USER_QUERY = """
-INSERT INTO public.user (id, name, email) VALUES (%s, %s, %s)
+INSERT INTO public.user_database (name, email, is_active, created_at, updated_at) VALUES (%s, %s, %s, %s, %s)
 """
 
 # ID_KEY = "id"

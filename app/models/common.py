@@ -6,8 +6,8 @@ from datetime import datetime
 
 
 class AuditableBase(BaseModel):
-    created_at: Optional[str] = Field(default=datetime.today(), nullable=True)
-    updated_at: Optional[str] = Field(default=datetime.today(), nullable=True)
+    created_at: Optional[str] = Field(default=str(datetime.today()), nullable=True)
+    updated_at: Optional[str] = Field(default=str(datetime.today()), nullable=True)
 
 
 class ActiveBase(BaseModel):
