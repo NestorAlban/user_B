@@ -7,7 +7,7 @@ from typing import List
 
 from psycopg2 import Error
 from psycopg2.extras import RealDictCursor
-from app.database.queries import CREATE_A_NEW_USER_QUERY, GET_ALL_ACTIVE_USERS_QUERY
+from app.database.queries import CREATE_A_NEW_USER_QUERY, GET_ALL_ACTIVE_USERS_QUERY, GET_ONE_USER_QUERY
 
 logger = logging.getLogger(__name__)
 logger.level = logger.setLevel(logging.INFO)
@@ -58,6 +58,16 @@ class Database:
         query = GET_ALL_ACTIVE_USERS_QUERY
         self.connect()
         self.cursor.execute(query)
+        users = self.cursor.fetchall()
+        self.disconnect()
+        return users
+
+    def get_one_user(self) -> List[RealDictCursor]:
+        users = []
+        self.idstr = None
+        query = GET_ONE_USER_QUERY
+        self.connect()
+        self.cursor.execute(query + str(self.idstr))
         users = self.cursor.fetchall()
         self.disconnect()
         return users

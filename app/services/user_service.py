@@ -27,3 +27,14 @@ class UserService:
         print("=====================================================")
         users = [User(**user_dict) for user_dict in users_dict_list]
         return users
+
+    def get_one_user(self) -> List[User]:
+        database = Database()
+        users = []
+        print("=====================================================")
+        users_dict_list = database.get_one_user()
+        idstr = database.get_one_user(idstr)
+        print(users, "3")
+        print("=====================================================")
+        users = [User(**user_dict) for user_dict in users_dict_list]
+        return users
