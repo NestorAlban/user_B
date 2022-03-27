@@ -4,6 +4,8 @@ from pydantic import Field
 from fastapi import status
 from fastapi import APIRouter
 from typing import List
+from typing import Optional
+
 from typing import Final
 
 from app.bp.get_users_usecase import UserGetter
@@ -20,9 +22,9 @@ class GetUsersResponse(BaseModel):
     id: int = Field(...)
     name: str = Field(...)
     email: str = Field(...)
-    is_active: str = Field()
-    created_at: str = Field()
-    updated_at: str = Field()
+    is_active: Optional[str] = Field()
+    created_at: Optional[str] = Field()
+    updated_at: Optional[str] = Field()
 
 
 @router.get(

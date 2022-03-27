@@ -2,8 +2,6 @@
 
 - Poetry
 
-
-
 # NEXT STEPS:
 
 - IMPLEMENT ORM (SQLALCHEMY)
