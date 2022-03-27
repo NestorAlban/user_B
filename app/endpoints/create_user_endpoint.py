@@ -3,69 +3,48 @@ from pydantic import BaseModel
 from pydantic import Field
 from fastapi import status
 from fastapi import APIRouter
-from typing import List
-from typing import Final
 
+from typing import Final
+from typing import Dict
 from app.bp.create_users_usecase import UserCreator
 
-from app.database.queries import NAME_KEY
-from app.database.queries import MAIL_KEY
-from app.database.queries import STATUS_KEY
-from app.database.queries import CREATED_KEY
-from app.database.queries import UPDATED_KEY
+# from app.database.queries import NAME_KEY
+# from app.database.queries import MAIL_KEY
+# from app.database.queries import STATUS_KEY
+# from app.database.queries import CREATED_KEY
+# from app.database.queries import UPDATED_KEY
 from app.models.user import User
+from app.bp.create_users_usecase import UserCreatorParams
 
 
 router = APIRouter()
 
-GET_USER_ERROR_MESSAGE: Final = "ERROR IN users ENDPOINT"
-USERS_ENDPOINT_SUMMARY: Final = "Register a new User"
-USERS_ENDPOINT_PATH: Final = "/register_users"
+CREATE_USER_ERROR_MESSAGE: Final = "ERROR IN create_user ENDPOINT"
+CREATE_USER_ENDPOINT_SUMMARY: Final = "Create a new User"
+CREATE_USER_ENDPOINT_PATH: Final = "/create_user"
+SUCCESS_KEY: Final = "success"
 
 
-class GetUsersResponse(BaseModel):
+class CreateUserInput(BaseModel):
     id: int = Field(...)
     name: str = Field(...)
     email: str = Field(...)
-    is_active: str = Field()
-    created_at: str = Field()
-    updated_at: str = Field()
 
 
 @router.post(
-    path=USERS_ENDPOINT_PATH,
-    response_model=List[GetUsersResponse],
+    path=CREATE_USER_ENDPOINT_PATH,
+    response_model=Dict[str, bool],
     status_code=status.HTTP_201_CREATED,
-    summary=USERS_ENDPOINT_SUMMARY,
+    summary=CREATE_USER_ENDPOINT_SUMMARY,
     tags=["Users"],
 )
-def create_user(new_user_data: User):
-    users_response = []
+def create_user(new_user_data: CreateUserInput):
+    success = False
     try:
-        user_data = new_user_data.dict()
-        user_getter = UserCreator()
-
-        users = new_user_data.dict()
-        user_data[NAME_KEY] = str(user_data[NAME_KEY])
-        user_data[MAIL_KEY] = str(user_data[MAIL_KEY])
-        user_data[STATUS_KEY] = str(user_data[STATUS_KEY])
-        user_data[CREATED_KEY] = str(user_data[CREATED_KEY])
-        user_data[UPDATED_KEY] = str(user_data[UPDATED_KEY])
-        users = (user_data[NAME_KEY], user_data[MAIL_KEY], user_data[STATUS_KEY])
-        print(users, "1")
-        print("=====================================================")
-        users = user_getter.run()
-        print(users, "1")
-        print("=====================================================")
-        users_response = [GetUsersResponse(**user.dict()) for user in users]
-        # users_response = [GetUsersResponse(
-        #     id=user.id,
-        #     name=user.name,
-        #     email=user.email,
-        #     is_active=user.is_active,
-        #     created_at=user.created_at,
-        #     updated_at=user.updated_at
-        # ) for user in users]
+        user_creator = UserCreator()
+        success = user_creator.run(
+            UserCreatorParams(id=new_user_data.id, name=new_user_data.name, email=new_user_data.email)
+        )
     except Exception as error:
-        logging.error(GET_USER_ERROR_MESSAGE, error)
-    return users_response
+        logging.error(CREATE_USER_ERROR_MESSAGE, error)
+    return {SUCCESS_KEY: success}
