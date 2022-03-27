@@ -6,14 +6,21 @@ from fastapi import APIRouter
 from typing import List
 from typing import Final
 
-from app.bp.get_users_usecase import UserGetter
+from app.bp.create_users_usecase import UserCreator
+
+from app.database.queries import NAME_KEY
+from app.database.queries import MAIL_KEY
+from app.database.queries import STATUS_KEY
+from app.database.queries import CREATED_KEY
+from app.database.queries import UPDATED_KEY
+from app.models.user import User
 
 
 router = APIRouter()
 
 GET_USER_ERROR_MESSAGE: Final = "ERROR IN users ENDPOINT"
-USERS_ENDPOINT_SUMMARY: Final = "Show active Users"
-USERS_ENDPOINT_PATH: Final = "/users"
+USERS_ENDPOINT_SUMMARY: Final = "Register a new User"
+USERS_ENDPOINT_PATH: Final = "/register_users"
 
 
 class GetUsersResponse(BaseModel):
@@ -25,17 +32,27 @@ class GetUsersResponse(BaseModel):
     updated_at: str = Field()
 
 
-@router.get(
+@router.post(
     path=USERS_ENDPOINT_PATH,
     response_model=List[GetUsersResponse],
-    status_code=status.HTTP_200_OK,
+    status_code=status.HTTP_201_CREATED,
     summary=USERS_ENDPOINT_SUMMARY,
     tags=["Users"],
 )
-def get_users():
+def create_user(new_user_data: User):
     users_response = []
     try:
-        user_getter = UserGetter()
+        user_data = new_user_data.dict()
+        user_getter = UserCreator()
+
+        users = new_user_data.dict()
+        user_data[NAME_KEY] = str(user_data[NAME_KEY])
+        user_data[MAIL_KEY] = str(user_data[MAIL_KEY])
+        user_data[STATUS_KEY] = str(user_data[STATUS_KEY])
+        user_data[CREATED_KEY] = str(user_data[CREATED_KEY])
+        user_data[UPDATED_KEY] = str(user_data[UPDATED_KEY])
+        users = (user_data[NAME_KEY], user_data[MAIL_KEY], user_data[STATUS_KEY])
+        print(users, "1")
         print("=====================================================")
         users = user_getter.run()
         print(users, "1")
