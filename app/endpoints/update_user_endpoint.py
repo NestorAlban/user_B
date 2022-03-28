@@ -6,48 +6,45 @@ from fastapi import APIRouter
 
 from typing import Final
 from typing import Dict
-from app.bp.create_users_usecase import UserCreator
+from app.bp.update_users_usercase import UserUpdate
 
 from app.models.user import User
-from app.bp.create_users_usecase import UserCreatorParams
 
 
 router = APIRouter()
 
-CREATE_USER_ERROR_MESSAGE: Final = "ERROR IN create_user ENDPOINT"
-CREATE_USER_ENDPOINT_SUMMARY: Final = "Create a new User"
-CREATE_USER_ENDPOINT_PATH: Final = "/create_user"
+UPDATE_USER_ERROR_MESSAGE: Final = "ERROR IN update_user ENDPOINT"
+UPDATE_USER_ENDPOINT_SUMMARY: Final = "Update a new User"
+UPDATE_USER_ENDPOINT_PATH: Final = "/user/{id}/update_user"
 SUCCESS_KEY: Final = "success"
 
 
-class CreateUserInput(BaseModel):
+class UpdateUserInput(BaseModel):
     id: int = Field(...)
     name: str = Field(default="Example")
     email: str = Field(default="example@email.com")
     is_active: bool = Field(default=True)
 
 
-@router.post(
-    path=CREATE_USER_ENDPOINT_PATH,
+@router.put(
+    path=UPDATE_USER_ENDPOINT_PATH,
     response_model=Dict[str, bool],
-    status_code=status.HTTP_201_CREATED,
-    summary=CREATE_USER_ENDPOINT_SUMMARY,
+    status_code=status.HTTP_200_OK,
+    summary=UPDATE_USER_ENDPOINT_SUMMARY,
     tags=["Users"],
 )
-def create_user(new_user_data: User):
+def update_user(new_user_data: User):
     success = False
     try:
-        user_creator = UserCreator()
+        user_creator = UserUpdate()
         success = user_creator.run(
             User(
                 id=new_user_data.id,
                 name=new_user_data.name,
                 email=new_user_data.email,
-                is_active=new_user_data.is_active,
-                created_at=new_user_data.created_at,
                 updated_at=new_user_data.updated_at,
             )
         )
     except Exception as error:
-        logging.error(CREATE_USER_ERROR_MESSAGE, error)
+        logging.error(UPDATE_USER_ERROR_MESSAGE, error)
     return {SUCCESS_KEY: success}

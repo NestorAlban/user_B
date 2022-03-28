@@ -11,10 +11,7 @@ class UserService:
 
     def get_users(self) -> List[User]:
         users = []
-        print("=====================================================")
         users_dict_list = self.database.get_all_active_users()
-        print(users_dict_list, "3")
-        print("=====================================================")
         users = [User(**user_dict) for user_dict in users_dict_list]
         print(users)
         return users
@@ -25,10 +22,15 @@ class UserService:
 
     def get_one_user(self, id: int) -> List[User]:
         users = []
-        print("=====================================================")
         users_dict_list = self.database.get_one_user(id)
-        print(users_dict_list, "3")
-        print("=====================================================")
         users = [User(**user_dict) for user_dict in users_dict_list]
         print(users)
         return users
+
+    def update_one_user(self, id: int, name: str, email: str, updated_at: str) -> bool:
+        success = self.database.update_one_user(id, name, email, updated_at)
+        return success
+
+    def update_user_status(self, id: int, is_active: bool, updated_at: str) -> bool:
+        success = self.database.update_user_status(id, is_active, updated_at)
+        return success
