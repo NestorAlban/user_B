@@ -27,3 +27,6 @@ class User(Base):
         default=func.now(),
         onupdate=func.now(),
     )
+
+    # def save(self, *args, **kwargs):
+    #     super(User, self).save(*args, **kwargs)

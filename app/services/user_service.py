@@ -17,6 +17,7 @@ class UserService:
         users = self.alchemy_db.get_all_active_users()
         return users
 
-    def create_user(self, id: int, name: str, email: str) -> bool:
+    def create_user(self, id: int, name: str, email: str):
         user = self.alchemy_db.create_user(name, email)
+        # print(f"user S:{user}")
         return user

@@ -11,7 +11,9 @@ from typing import List
 from psycopg2 import Error
 from psycopg2.extras import RealDictCursor
 from app.database.queries import CREATE_USER_QUERY, GET_ALL_ACTIVE_USERS_QUERY
-from models.user import Base
+from datetime import datetime
+from typing import Optional
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 logger.level = logger.setLevel(logging.INFO)
@@ -80,12 +82,22 @@ class Database:
         return success
 
 
+@dataclass(frozen=True)
+class UserDomain:
+    id: int
+    name: str
+    email: str
+    is_active: Optional[bool]
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
+
+
 class Db:
     def __init__(self) -> None:
         engine = create_engine("postgresql://postgres:postgres@127.0.0.1:5445/bd-users", echo=True, future=True)
         Session = sessionmaker(engine)
         self.session = Session()
-        Base.metadata.create_all(engine)
+        # Base.metadata.create_all(engine)
 
     def get_all_active_users(self):
         users = self.session.query(User).filter(User.is_active == sa_true()).all()
@@ -95,4 +107,5 @@ class Db:
         user = User(name=name, email=email)
         self.session.add(user)
         self.session.commit()
-        return user
+        user_domain = UserDomain(user.id, user.name, user.email, user.is_active, user.created_at, user.updated_at)
+        return user_domain
