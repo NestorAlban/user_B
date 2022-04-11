@@ -10,8 +10,5 @@ class UserGetter:
     def run(self) -> List[User]:
         users = []
         user_service = UserService()
-        print("=====================================================")
         users = user_service.get_users()
-        print(users, "2")
-        print("=====================================================")
         return users

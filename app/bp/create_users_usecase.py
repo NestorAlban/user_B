@@ -15,8 +15,7 @@ class UserCreator:
     def __init__(self):
         pass
 
-    def run(self, params: UserCreatorParams) -> bool:
-        success = False
+    def run(self, params: UserCreatorParams):
         user_service = UserService()
-        success = user_service.create_user(params.id, params.name, params.email)
-        return success
+        user = user_service.create_user(params.id, params.name, params.email)
+        return user

@@ -1,13 +1,17 @@
 import logging
 import psycopg2
 import os
-
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import true as sa_true
+from models.user import User
 from typing import Final
 from typing import List
 
 from psycopg2 import Error
 from psycopg2.extras import RealDictCursor
 from app.database.queries import CREATE_USER_QUERY, GET_ALL_ACTIVE_USERS_QUERY
+from models.user import Base
 
 logger = logging.getLogger(__name__)
 logger.level = logger.setLevel(logging.INFO)
@@ -74,3 +78,21 @@ class Database:
         except Exception as e:
             logging("DB ERROR", e)
         return success
+
+
+class Db:
+    def __init__(self) -> None:
+        engine = create_engine("postgresql://postgres:postgres@127.0.0.1:5445/bd-users", echo=True, future=True)
+        Session = sessionmaker(engine)
+        self.session = Session()
+        Base.metadata.create_all(engine)
+
+    def get_all_active_users(self):
+        users = self.session.query(User).filter(User.is_active == sa_true()).all()
+        return users
+
+    def create_user(self, name, email):
+        user = User(name=name, email=email)
+        self.session.add(user)
+        self.session.commit()
+        return user
