@@ -1,4 +1,5 @@
 import logging
+from fastapi import Body, Path
 import psycopg2
 import os
 from sqlalchemy import create_engine
@@ -10,10 +11,16 @@ from typing import List
 
 from psycopg2 import Error
 from psycopg2.extras import RealDictCursor
-from app.database.queries import CREATE_USER_QUERY, GET_ALL_ACTIVE_USERS_QUERY
 from datetime import datetime
 from typing import Optional
 from dataclasses import dataclass
+from app.database.queries import (
+    CREATE_USER_QUERY,
+    GET_ALL_ACTIVE_USERS_QUERY,
+    GET_ONE_USER_QUERY,
+    UPDATE_USER_DATA_QUERY,
+    UPDATE_USER_STATUS_QUERY,
+)
 
 logger = logging.getLogger(__name__)
 logger.level = logger.setLevel(logging.INFO)
@@ -68,12 +75,49 @@ class Database:
         self.disconnect()
         return users
 
-    def create_new_user(self, id: int, name: str, email: str) -> bool:
+    def create_new_user(
+        self, id: int, name: str, email: str, is_active: bool, created_at: str, updated_at: str
+    ) -> bool:
         success = False
         try:
             query = CREATE_USER_QUERY
             self.connect()
-            self.cursor.execute(query, (id, name, email))
+            self.cursor.execute(query, (name, email, is_active, created_at, updated_at))
+            self.commit()
+            self.disconnect()
+            success = True
+        except Exception as e:
+            logging("DB ERROR", e)
+        return success
+
+    def get_one_user(self, id: int = Path(..., title="User ID")) -> List[RealDictCursor]:
+        users = []
+        query = GET_ONE_USER_QUERY
+        self.connect()
+        self.cursor.execute(query + str(id))
+        users = self.cursor.fetchall()
+        self.disconnect()
+        return users
+
+    def update_one_user(self, id: int, name: str, email: str, updated_at: str) -> bool:
+        success = False
+        try:
+            query = UPDATE_USER_DATA_QUERY
+            self.connect()
+            self.cursor.execute(query, (name, email, updated_at, str(id)))
+            self.commit()
+            self.disconnect()
+            success = True
+        except Exception as e:
+            logging("DB ERROR", e)
+        return success
+
+    def update_user_status(self, id: int, is_active: str, updated_at: str) -> bool:
+        success = False
+        try:
+            query = UPDATE_USER_STATUS_QUERY
+            self.connect()
+            self.cursor.execute(query, (bool(is_active), updated_at, str(id)))
             self.commit()
             self.disconnect()
             success = True

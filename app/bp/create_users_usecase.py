@@ -6,7 +6,6 @@ from pydantic import BaseModel
 
 
 class UserCreatorParams(BaseModel):
-    id: int = Field(...)
     name: str = Field(...)
     email: str = Field(...)
 
@@ -17,5 +16,5 @@ class UserCreator:
 
     def run(self, params: UserCreatorParams):
         user_service = UserService()
-        user = user_service.create_user(params.id, params.name, params.email)
+        user = user_service.create_user(params.name, params.email)
         return user
