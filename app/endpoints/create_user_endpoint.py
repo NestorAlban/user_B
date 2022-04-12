@@ -47,7 +47,10 @@ def create_user(new_user_data: CreateUserInput):
     user_r = None
     try:
         user_creator = UserCreator()
-        user = user_creator.run(UserCreatorParams(name=new_user_data.name, email=new_user_data.email))
+        user = user_creator.run(UserCreatorParams(
+            name=new_user_data.name, 
+            email=new_user_data.email
+        ))
         # print(f"user E:{user}")
         success = True
         user_r = CreateUserResponse.construct(

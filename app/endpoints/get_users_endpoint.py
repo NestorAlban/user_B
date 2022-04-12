@@ -38,8 +38,9 @@ def get_users():
     try:
         user_getter = UserGetter()
         users = user_getter.run()
-        users_response = [GetUsersResponse(**user.__dict__) for user in users]
-
+        users_response = [
+            GetUsersResponse(**user.__dict__) for user in users
+        ]
     except Exception as error:
         logging.error(GET_USER_ERROR_MESSAGE, error)
     return users_response

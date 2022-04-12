@@ -24,15 +24,20 @@ class UserService:
 
     def get_one_user(self, id: int) -> List[User]:
         users = []
-        users_dict_list = self.database.get_one_user(id)
-        users = [User(**user_dict) for user_dict in users_dict_list]
-        print(users)
+        users = self.alchemy_db.get_one_u(id)
         return users
 
-    def update_one_user(self, id: int, name: str, email: str, updated_at: str) -> bool:
-        success = self.database.update_one_user(id, name, email, updated_at)
-        return success
+    def update_one_user(self, id: int, name: str, email: str) -> bool:
+        users = []
+        users = self.alchemy_db.up_one_user(id, name, email)
+        return users
 
-    def update_user_status(self, id: int, is_active: bool, updated_at: str) -> bool:
-        success = self.database.update_user_status(id, is_active, updated_at)
-        return success
+    def update_user_status(self, id: int, is_active: bool) -> bool:
+        users = []
+        users = self.alchemy_db.up_user_status(id, is_active)
+        return users
+
+    def get_all_users(self):
+        users = []
+        users = self.alchemy_db.get_all_users()
+        return users

@@ -1,28 +1,21 @@
 import logging
 from pydantic import BaseModel
 from pydantic import Field
-from fastapi import Body, Path
 from fastapi import status
 from fastapi import APIRouter
 from typing import List
 from typing import Optional
 from typing import Final
 from datetime import datetime
-
-from app.bp.get_one_user_usecase import (
-    OneUserGetter, 
-    OneUserGetterParams
-)
+from app.bp.get_all_users_usercase import AllUserGetter
 
 
 router = APIRouter()
 
 GET_USER_ERROR_MESSAGE: Final = "ERROR IN users ENDPOINT"
-USERS_ENDPOINT_SUMMARY: Final = "Show one User"
-USERS_ENDPOINT_PATH: Final = "/user/{id}"
+USERS_ENDPOINT_SUMMARY: Final = "Show all Users"
+USERS_ENDPOINT_PATH: Final = "/all_users"
 
-class GetOneUserInput(BaseModel):
-    id: int = Field(default=1)
 
 class GetUsersResponse(BaseModel):
     id: int = Field(...)
@@ -40,14 +33,11 @@ class GetUsersResponse(BaseModel):
     summary=USERS_ENDPOINT_SUMMARY,
     tags=["Users"],
 )
-def get_users(id: int = Path(..., title="User ID")):
+def get_users():
     users_response = []
     try:
-        user_getter = OneUserGetter()
-        print("=====================================================")
-        users = user_getter.run(OneUserGetterParams(id=id))
-        print(users, "1")
-        print("=====================================================")
+        user_getter = AllUserGetter()
+        users = user_getter.run()
         users_response = [
             GetUsersResponse(**user.__dict__) for user in users
         ]

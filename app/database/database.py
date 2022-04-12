@@ -5,9 +5,12 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import true as sa_true
-from models.user import User
+# from models.user import User
+from app.models.user import User
+from app.models.user import Base
 from typing import Final
 from typing import List
+
 
 from psycopg2 import Error
 from psycopg2.extras import RealDictCursor
@@ -135,10 +138,18 @@ class UserDomain:
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
 
-
 class Db:
     def __init__(self) -> None:
-        engine = create_engine("postgresql://postgres:postgres@127.0.0.1:5445/bd-users", echo=True, future=True)
+        self.database_user = os.getenv("DATABASE_USER")
+        self.database_password = os.getenv("DATABASE_PASSWORD")
+        self.database_host = os.getenv("DATABASE_HOST")
+        self.database_port = os.getenv("DATABASE_PORT")
+        self.database_name = os.getenv("DATABASE_NAME")
+        engine = create_engine(
+            f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}/{self.database_name}",
+            echo=True,
+            future=True,
+        )
         Session = sessionmaker(engine)
         self.session = Session()
         # Base.metadata.create_all(engine)
@@ -151,5 +162,42 @@ class Db:
         user = User(name=name, email=email)
         self.session.add(user)
         self.session.commit()
-        user_domain = UserDomain(user.id, user.name, user.email, user.is_active, user.created_at, user.updated_at)
+        user_domain = UserDomain(
+            user.id, 
+            user.name, 
+            user.email, 
+            user.is_active, 
+            user.created_at, 
+            user.updated_at
+        )
         return user_domain
+
+    def get_one_u(self, id):
+        users = self.session.query(User).filter(User.id == id)
+        return users
+
+    def up_one_user(self, id, name, email):
+        users = self.session.query(User).filter(User.id == id).update(
+            {
+                User.name: name,
+                User.email: email
+            }
+        ) 
+        self.session.commit()
+        users2 = self.session.query(User).filter(User.id == id)
+        return users2
+    
+    def up_user_status(self, id, is_active):
+        users = self.session.query(User).filter(User.id == id).update(
+            {
+                User.is_active: is_active
+            }
+        ) 
+        self.session.commit()
+        users2 = self.session.query(User).filter(User.id == id)
+        return users2
+    
+    def get_all_users(self):
+        users = self.session.query(User).all()
+        return users
+

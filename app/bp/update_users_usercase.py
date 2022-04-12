@@ -4,13 +4,17 @@ from app.models import User
 from pydantic import Field
 from pydantic import BaseModel
 
+class UserModParams(BaseModel):
+    id: int = Field(...)
+    name: str = Field(...)
+    email: str = Field(...)
 
 class UserUpdate:
     def __init__(self):
         pass
 
-    def run(self, params: User) -> bool:
-        success = False
+    def run(self, params: UserModParams) -> bool:
+        users = []
         user_service = UserService()
-        success = user_service.update_one_user(params.id, params.name, params.email, params.updated_at)
-        return success
+        users = user_service.update_one_user(params.id, params.name, params.email)
+        return users
