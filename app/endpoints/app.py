@@ -1,9 +1,11 @@
 from app.endpoints import (
-    change_user_status_endpoint, 
+    activate_user_endpoint,
+    change_user_status_endpoint,
     create_user_endpoint,
-    get_all_users_endpoints, 
-    get_one_user_endpoint, 
-    update_user_endpoint
+    delete_user_endpoint,
+    get_all_users_endpoints,
+    get_one_user_endpoint,
+    update_user_endpoint,
 )
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -21,4 +23,6 @@ def create_app():
     app.include_router(get_one_user_endpoint.router)
     app.include_router(update_user_endpoint.router)
     app.include_router(change_user_status_endpoint.router)
+    app.include_router(delete_user_endpoint.router)
+    app.include_router(activate_user_endpoint.router)
     return app

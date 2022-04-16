@@ -5,6 +5,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import true as sa_true
+
 # from models.user import User
 from app.models.user import User
 from app.models.user import Base
@@ -30,6 +31,8 @@ logger.level = logger.setLevel(logging.INFO)
 DATABASE_CONNECTION_ERROR: Final = "Error while connecting to PostgreSQL"
 CLOSED_DATABASE_MESSAGE: Final = "PostgreSQL connection is closed"
 CONNECTING_DB_MESSAGE: Final = "Connecting PostgreSQL database======"
+DELETED_USER: Final = False
+ACTIVE_USER: Final = True
 
 
 class Database:
@@ -138,66 +141,103 @@ class UserDomain:
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
 
+
 class Db:
+    name = "Boris"
+
     def __init__(self) -> None:
         self.database_user = os.getenv("DATABASE_USER")
         self.database_password = os.getenv("DATABASE_PASSWORD")
         self.database_host = os.getenv("DATABASE_HOST")
         self.database_port = os.getenv("DATABASE_PORT")
         self.database_name = os.getenv("DATABASE_NAME")
-        engine = create_engine(
+        self.engine = create_engine(
             f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}/{self.database_name}",
             echo=True,
             future=True,
         )
-        Session = sessionmaker(engine)
+        Session = sessionmaker(self.engine)
         self.session = Session()
-        # Base.metadata.create_all(engine)
+        # Base.metadata.create_all(self.engine)
+
+    # @classmethod
+    @staticmethod
+    def create_user_domain(user):
+        user_domain = UserDomain(user.id, user.name, user.email, user.is_active, user.created_at, user.updated_at)
+        return user_domain
 
     def get_all_active_users(self):
         users = self.session.query(User).filter(User.is_active == sa_true()).all()
+        self.session.close()
         return users
 
     def create_user(self, name, email):
         user = User(name=name, email=email)
         self.session.add(user)
         self.session.commit()
-        user_domain = UserDomain(
-            user.id, 
-            user.name, 
-            user.email, 
-            user.is_active, 
-            user.created_at, 
-            user.updated_at
-        )
+        user_domain = Db.create_user_domain(user)
+        self.session.close()
         return user_domain
 
     def get_one_u(self, id):
-        users = self.session.query(User).filter(User.id == id)
-        return users
+        user = None
+        user = self.session.query(User).filter(User.id == id).first()
+        self.session.close()
+        return user
 
     def up_one_user(self, id, name, email):
-        users = self.session.query(User).filter(User.id == id).update(
-            {
-                User.name: name,
-                User.email: email
-            }
-        ) 
-        self.session.commit()
-        users2 = self.session.query(User).filter(User.id == id)
-        return users2
-    
+        # users = self.session.query(User).filter(User.id == id).update(
+        #     {
+        #         User.name: name,
+        #         User.email: email
+        #     }
+        # )
+        user_domain = None
+        user = self.session.query(User).filter(User.id == id).first()
+        if user:
+            user.name = name
+            user.email = email
+            self.session.commit()
+            user_domain = Db.create_user_domain(user)
+        self.session.close()
+        return user_domain
+
     def up_user_status(self, id, is_active):
-        users = self.session.query(User).filter(User.id == id).update(
-            {
-                User.is_active: is_active
-            }
-        ) 
+        users = self.session.query(User).filter(User.id == id).update({User.is_active: is_active})
         self.session.commit()
         users2 = self.session.query(User).filter(User.id == id)
+        self.session.close()
         return users2
-    
+
     def get_all_users(self):
         users = self.session.query(User).all()
+        self.session.close()
         return users
 
+    def delete_user(self, id) -> UserDomain:
+        # users = self.session.query(User).filter(User.id == id).update(
+        #     {
+        #         User.is_active: DELETED_USER
+        #     }
+        # )
+        # self.session.commit()
+        # users2 = self.session.query(User).filter(User.id == id)
+        # return users2
+        user_domain = None
+        user_first = self.session.query(User).filter(User.id == id).first()
+        if user_first:
+            user_first.is_active = DELETED_USER
+            self.session.commit()
+            user_domain = Db.create_user_domain(user_first)
+        self.session.close()
+        return user_domain
+
+    def activate_user(self, id: int) -> UserDomain:
+        user_domain = None
+        user_first = self.session.query(User).filter(User.id == id).first()
+        if user_first:
+            user_first.is_active = ACTIVE_USER
+            self.session.commit()
+            user_domain = Db.create_user_domain(user_first)
+        self.session.close()
+        return user_domain

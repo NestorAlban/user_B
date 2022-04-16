@@ -17,26 +17,12 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = "user_try1"
 
-    id = Column(
-        Integer, 
-        primary_key=True
-    )
-    name = Column(String)
-    email = Column(String)
-    is_active = Column(
-        Boolean(), 
-        default=True, 
-        nullable=True
-    )
-    created_at = Column(
-        DateTime, 
-        default=func.now()
-    )
-    updated_at = Column(
-        DateTime,
-        default=func.now(),
-        onupdate=func.now()
-    )
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False, unique=True)
+    email = Column(String, nullable=False, unique=True)
+    is_active = Column(Boolean(), default=True, nullable=True)
+    created_at = Column(DateTime, default=func.now(), nullable=True)
+    updated_at = Column(DateTime, default=func.now(), nullable=True, onupdate=func.now())
 
     # def save(self, *args, **kwargs):
     #     super(User, self).save(*args, **kwargs)

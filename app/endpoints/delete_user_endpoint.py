@@ -1,32 +1,32 @@
 import logging
 from pydantic import BaseModel
 from pydantic import Field
-from fastapi import Path
+from fastapi import Body, Path
 from fastapi import status
 from fastapi import APIRouter
-from typing import Dict
+from typing import Any
 from typing import Optional
 from typing import Final
-from typing import Any
-
 from datetime import datetime
+from typing import Dict
 
-from app.bp.get_one_user_usecase import OneUserGetter, OneUserGetterParams
+from app.bp.delete_user_usercase import UserDeleter, DeleteUserParams
 
 
 router = APIRouter()
 
 GET_USER_ERROR_MESSAGE: Final = "ERROR IN users ENDPOINT"
-USERS_ENDPOINT_SUMMARY: Final = "Show one User"
-USERS_ENDPOINT_PATH: Final = "/user/{id}"
+USERS_ENDPOINT_SUMMARY: Final = "Delete User"
+USERS_ENDPOINT_PATH: Final = "/user/delete_user"
+SUCCESS_KEY: Final = "success"
 USER_KEY: Final = "user"
 
 
-class GetOneUserInput(BaseModel):
+class DeleteUserInput(BaseModel):
     id: int = Field(default=1)
 
 
-class GetOneUserResponse(BaseModel):
+class DeleteUserResponse(BaseModel):
     id: int = Field(...)
     name: str = Field(...)
     email: str = Field(...)
@@ -35,20 +35,22 @@ class GetOneUserResponse(BaseModel):
     updated_at: Optional[datetime] = Field()
 
 
-@router.get(
+@router.delete(
     path=USERS_ENDPOINT_PATH,
-    response_model=Dict[str, Any],
     status_code=status.HTTP_200_OK,
+    response_model=Dict[str, Any],
     summary=USERS_ENDPOINT_SUMMARY,
     tags=["Users"],
 )
-def get_one_user(id: int = Path(..., title="User ID")):
+def delete_user(id: int):
+    success = False
     users_response = None
     try:
-        user_getter = OneUserGetter()
-        user = user_getter.run(OneUserGetterParams(id=id))
+        user_getter = UserDeleter()
+        user = user_getter.run(DeleteUserParams(id=id))
         if user:
-            users_response = GetOneUserResponse(**user.__dict__)
+            success = True
+            users_response = DeleteUserResponse(**user.__dict__)
     except Exception as error:
         logging.error(GET_USER_ERROR_MESSAGE, error)
-    return {USER_KEY: users_response}
+    return {SUCCESS_KEY: success, USER_KEY: users_response}

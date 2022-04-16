@@ -1,4 +1,3 @@
-from ast import Param
 from app.services import UserService
 from typing import List
 from app.models import User
@@ -7,16 +6,15 @@ from pydantic import BaseModel
 from app.database.database import UserDomain
 
 
-class OneUserGetterParams(BaseModel):
+class DeleteUserParams(BaseModel):
     id: int = Field(...)
 
 
-class OneUserGetter:
+class UserDeleter:
     def __init__(self):
         pass
 
-    def run(self, params: OneUserGetterParams) -> User:
-
+    def run(self, params: DeleteUserParams) -> UserDomain:
         user_service = UserService()
-        users = user_service.get_one_user(params.id)
+        users = user_service.delete_user(params.id)
         return users
