@@ -16,7 +16,6 @@ class OneUserGetter:
         pass
 
     def run(self, params: OneUserGetterParams) -> User:
-
         user_service = UserService()
         users = user_service.get_one_user(params.id)
         return users

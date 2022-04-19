@@ -5,9 +5,11 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import true as sa_true
+from sqlalchemy.exc import IntegrityError
 
 # from models.user import User
 from app.models.user import User
+from app.models.user import Article
 from app.models.user import Base
 from typing import Final
 from typing import List
@@ -15,6 +17,7 @@ from typing import List
 
 from psycopg2 import Error
 from psycopg2.extras import RealDictCursor
+from psycopg2.errors import UniqueViolation
 from datetime import datetime
 from typing import Optional
 from dataclasses import dataclass
@@ -142,6 +145,15 @@ class UserDomain:
     updated_at: Optional[datetime]
 
 
+@dataclass(frozen=True)
+class ArticleDomain:
+    id: int
+    title: str
+    published_at: Optional[datetime]
+    autor_id: int
+    
+
+
 class Db:
     name = "Boris"
 
@@ -160,11 +172,36 @@ class Db:
         self.session = Session()
         # Base.metadata.create_all(self.engine)
 
+    ##Users
+
     # @classmethod
     @staticmethod
     def create_user_domain(user):
-        user_domain = UserDomain(user.id, user.name, user.email, user.is_active, user.created_at, user.updated_at)
+        user_domain = UserDomain(
+            user.id, 
+            user.name, 
+            user.email, 
+            user.is_active, 
+            user.created_at, 
+            user.updated_at
+        )
         return user_domain
+
+    def get_all_users(self):
+        users = self.session.query(User).all()
+        for user_object in users:
+            print(user_object)
+            if user_object:
+                user_domain=Db.create_user_domain(user_object)
+                print("============================================")
+                print(user_domain)
+                print(type(user_domain))
+                print(user_domain.id)
+                print("============================================")
+        self.session.close()
+        # user_response=[UserDomain(**user.__dict__) for user in users]
+        # print(user_response)
+        return users
 
     def get_all_active_users(self):
         users = self.session.query(User).filter(User.is_active == sa_true()).all()
@@ -172,10 +209,18 @@ class Db:
         return users
 
     def create_user(self, name, email):
+        user_domain = None
         user = User(name=name, email=email)
-        self.session.add(user)
-        self.session.commit()
-        user_domain = Db.create_user_domain(user)
+        try:
+            if user:
+                self.session.add(user)
+                self.session.commit()
+                user_domain = Db.create_user_domain(user)
+                print("============================")
+                print(user_domain.id)
+                print("============================")
+        except IntegrityError as e:
+            assert isinstance(e.orig, UniqueViolation)
         self.session.close()
         return user_domain
 
@@ -209,11 +254,6 @@ class Db:
         self.session.close()
         return users2
 
-    def get_all_users(self):
-        users = self.session.query(User).all()
-        self.session.close()
-        return users
-
     def delete_user(self, id) -> UserDomain:
         # users = self.session.query(User).filter(User.id == id).update(
         #     {
@@ -225,10 +265,19 @@ class Db:
         # return users2
         user_domain = None
         user_first = self.session.query(User).filter(User.id == id).first()
+        print("============================================")
+        print(user_first)
+        print(type(user_first))
+        print("============================================")
         if user_first:
             user_first.is_active = DELETED_USER
             self.session.commit()
             user_domain = Db.create_user_domain(user_first)
+            print("============================================")
+            print(user_domain)
+            print(type(user_domain))
+            print(user_domain.id)
+            print("============================================")
         self.session.close()
         return user_domain
 
@@ -241,3 +290,49 @@ class Db:
             user_domain = Db.create_user_domain(user_first)
         self.session.close()
         return user_domain
+
+
+    ##Articles
+    
+    # @classmethod
+    @staticmethod
+    def create_article_domain(article):
+        article_domain = ArticleDomain(
+            article.id, 
+            article.title, 
+            article.published_at, 
+            article.autor_id
+        )
+        return article_domain
+
+    def get_all_articles(self):
+        articles = self.session.query(Article).all()
+        self.session.close()
+        return articles
+
+    def create_article(self, title, autor_id):
+        article_domain = None
+        user_domain = None
+        users = None
+        users = self.session.query(User).all()
+        article = Article(
+            title = title, 
+            autor_id = autor_id
+        )
+        try:
+            if users:
+                for user in users:
+                    if user:
+                        user_domain = Db.create_user_domain(user)
+                        print(user_domain.id, autor_id)
+                        if user_domain.id == autor_id:
+                            if article:
+                                self.session.add(article)
+                                self.session.commit()
+                                article_domain = Db.create_article_domain(article)
+        except IntegrityError as e:
+            assert isinstance(e.orig, UniqueViolation)
+        self.session.close()
+        return article_domain
+
+

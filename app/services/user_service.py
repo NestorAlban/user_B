@@ -2,9 +2,11 @@ from tkinter import N
 from app.database import Database
 from app.database import Db
 from app.database import UserDomain
+from app.database import ArticleDomain
 
 from typing import List
 from app.models import User
+from app.models import Article
 
 
 class UserService:

@@ -21,8 +21,8 @@ USER_KEY: Final = "user"
 
 
 class CreateUserInput(BaseModel):
-    name: str = Field(...)
-    email: str = Field(...)
+    name: str = Field(default = "Example")
+    email: str = Field(default = "example@email.com")
 
 
 class CreateUserResponse(BaseModel):
@@ -49,7 +49,10 @@ def create_user(new_user_data: CreateUserInput):
         email = new_user_data.email.strip()
 
         if len(name) != 0 and len(email) != 0:
-            user = user_creator.run(UserCreatorParams(name=name, email=email))
+            user = user_creator.run(UserCreatorParams(
+                name=name, 
+                email=email)
+            )
             success = True
             user_response = CreateUserResponse.construct(
                 id=user.id,
