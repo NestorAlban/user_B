@@ -1,4 +1,3 @@
-
 from app.services import ArticleService
 from typing import List
 from app.models import User
@@ -7,22 +6,17 @@ from pydantic import BaseModel
 from app.database.database import ArticleDomain
 
 
-class ArticleCreatorParams(BaseModel):
+class ArticleModParams(BaseModel):
+    id: int = Field(...)
     title: str = Field(...)
     information: str = Field(...)
-    autor_id: int = Field(...)
 
 
-class ArticleCreator:
+class ArticleUpdate:
     def __init__(self):
         pass
 
-    def run(self, params: ArticleCreatorParams) -> ArticleDomain:
+    def run(self, params: ArticleModParams) -> ArticleDomain:
         article_service = ArticleService()
-        article = article_service.create_article(
-            params.title, 
-            params.information, 
-            params.autor_id
-        )
-        return article
-
+        articles = article_service.update_one_user_article(params.id, params.title, params.information)
+        return articles

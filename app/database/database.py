@@ -149,7 +149,9 @@ class UserDomain:
 class ArticleDomain:
     id: int
     title: str
+    information: str
     published_at: Optional[datetime]
+    updated_at: Optional[datetime]
     autor_id: int
     
 
@@ -187,17 +189,35 @@ class Db:
         )
         return user_domain
 
+    def get_all_users_simple(self):
+            ##1
+        # articles = self.session.query(
+        #     User
+        #     ).with_entities(
+        #         User.id, 
+        #         User.name, 
+        #         User.email
+        #     ).all()
+            ##2
+        users = self.session.query(
+            User.id, 
+            User.name, 
+            User.email
+        ).all()
+        self.session.close()
+        return users
+
     def get_all_users(self):
         users = self.session.query(User).all()
         for user_object in users:
             print(user_object)
             if user_object:
                 user_domain=Db.create_user_domain(user_object)
-                print("============================================")
-                print(user_domain)
-                print(type(user_domain))
-                print(user_domain.id)
-                print("============================================")
+                # print("============================================")
+                # print(user_domain)
+                # print(type(user_domain))
+                # print(user_domain.id)
+                # print("============================================")
         self.session.close()
         # user_response=[UserDomain(**user.__dict__) for user in users]
         # print(user_response)
@@ -208,7 +228,7 @@ class Db:
         self.session.close()
         return users
 
-    def create_user(self, name, email):
+    def create_user(self, name: str, email: str):
         user_domain = None
         user = User(name=name, email=email)
         try:
@@ -216,21 +236,21 @@ class Db:
                 self.session.add(user)
                 self.session.commit()
                 user_domain = Db.create_user_domain(user)
-                print("============================")
-                print(user_domain.id)
-                print("============================")
+                # print("============================")
+                # print(user_domain.id)
+                # print("============================")
         except IntegrityError as e:
             assert isinstance(e.orig, UniqueViolation)
         self.session.close()
         return user_domain
 
-    def get_one_u(self, id):
+    def get_one_u(self, id: int):
         user = None
         user = self.session.query(User).filter(User.id == id).first()
         self.session.close()
         return user
 
-    def up_one_user(self, id, name, email):
+    def up_one_user(self, id: int, name: str, email: str):
         # users = self.session.query(User).filter(User.id == id).update(
         #     {
         #         User.name: name,
@@ -247,14 +267,14 @@ class Db:
         self.session.close()
         return user_domain
 
-    def up_user_status(self, id, is_active):
+    def up_user_status(self, id: int, is_active: bool):
         users = self.session.query(User).filter(User.id == id).update({User.is_active: is_active})
         self.session.commit()
         users2 = self.session.query(User).filter(User.id == id)
         self.session.close()
         return users2
 
-    def delete_user(self, id) -> UserDomain:
+    def delete_user(self, id: int) -> UserDomain:
         # users = self.session.query(User).filter(User.id == id).update(
         #     {
         #         User.is_active: DELETED_USER
@@ -265,19 +285,19 @@ class Db:
         # return users2
         user_domain = None
         user_first = self.session.query(User).filter(User.id == id).first()
-        print("============================================")
-        print(user_first)
-        print(type(user_first))
-        print("============================================")
+        # print("============================================")
+        # print(user_first)
+        # print(type(user_first))
+        # print("============================================")
         if user_first:
             user_first.is_active = DELETED_USER
             self.session.commit()
             user_domain = Db.create_user_domain(user_first)
-            print("============================================")
-            print(user_domain)
-            print(type(user_domain))
-            print(user_domain.id)
-            print("============================================")
+            # print("============================================")
+            # print(user_domain)
+            # print(type(user_domain))
+            # print(user_domain.id)
+            # print("============================================")
         self.session.close()
         return user_domain
 
@@ -299,8 +319,10 @@ class Db:
     def create_article_domain(article):
         article_domain = ArticleDomain(
             article.id, 
-            article.title, 
+            article.title,
+            article.information, 
             article.published_at, 
+            article.updated_at,
             article.autor_id
         )
         return article_domain
@@ -310,13 +332,14 @@ class Db:
         self.session.close()
         return articles
 
-    def create_article(self, title, autor_id):
+    def create_article(self, title: str, information: str, autor_id: int):
         article_domain = None
         user_domain = None
         users = None
         users = self.session.query(User).all()
         article = Article(
-            title = title, 
+            title = title,
+            information = information, 
             autor_id = autor_id
         )
         try:
@@ -335,4 +358,89 @@ class Db:
         self.session.close()
         return article_domain
 
+    def get_one_user_articles(self, id: int):
+        articles = None
+        articles = self.session.query(Article).filter(
+            User.id == id
+            ).filter(Article.autor_id == id).all()
+        self.session.close()
+        return articles
 
+    def get_active_users_articles(self):
+            ##primera forma
+        # articles = None
+        # articles = self.session.query(Article).all()
+        # users = None
+        # users = self.session.query(User).all()
+        # article_domain = None
+        # user_domain = None
+        # articles_response = []
+        # try:
+        #     if users:
+        #         for user in users:
+        #             if user:
+        #                 user_domain = Db.create_user_domain(user)
+        #                 print(user_domain.id)
+        #                 if user_domain.is_active == True:
+        #                     for article in articles:
+        #                         if articles:
+        #                             article_domain = Db.create_article_domain(article)
+        #                             if user_domain.id == article_domain.autor_id:
+        #                                 articles_response.append(article_domain)
+
+            ##segunda forma
+        articles = None
+        articles = self.session.query(Article).all()
+        users = None
+        users = self.session.query(User).filter(User.is_active == sa_true()).all()
+        article_domain = None
+        user_domain = None
+        articles_response = []
+        try:
+            if users:
+                for user in users:
+                    if user:
+                        user_domain = Db.create_user_domain(user)
+                        print(user_domain.id)
+                        for article in articles:
+                            if articles:
+                                article_domain = Db.create_article_domain(article)
+                                if user_domain.id == article_domain.autor_id:
+                                    articles_response.append(article_domain)
+        except IntegrityError as e:
+            assert isinstance(e.orig, UniqueViolation)
+        self.session.close()
+        return articles_response
+
+    def update_one_user_article(self, id: int, title: str, information: str):
+        article_domain = None
+        article = self.session.query(Article).filter(Article.id == id).first()
+        if article:
+            article.title = title
+            article.information = information
+            self.session.commit()
+            article_domain = Db.create_article_domain(article)
+        self.session.close()
+        return article_domain
+
+    ##Both
+    def get_all_users_articles(self):
+        
+            ##1
+        articles = self.session.query(
+            User
+            ).with_entities(
+                User.id, 
+                User.name, 
+                User.email
+            ).all()
+
+            ##2
+        # articles = self.session.query(
+        #     User.id, 
+        #     User.name, 
+        #     User.email
+        #     ).all()
+        self.session.close()
+        return articles
+    

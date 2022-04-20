@@ -64,10 +64,20 @@ class Article(Base):
         String,
         nullable = False
     )
+    information = Column(
+        String,
+        nullable = False
+    )
     published_at = Column(
         DateTime, 
         default = func.now(), 
         nullable = True
+    )
+    updated_at = Column(
+        DateTime, 
+        default = func.now(), 
+        nullable = True, 
+        onupdate = func.now()
     )
     autor_id = Column(
         Integer,

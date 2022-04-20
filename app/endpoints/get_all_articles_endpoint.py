@@ -20,8 +20,10 @@ ARTICLES_ENDPOINT_PATH: Final = "/all_articles"
 class GetAllArticlesResponse(BaseModel):
     id: int = Field(...)
     title: str = Field(...)
-    published_at: Optional[datetime] = Field()
+    information: str = Field(...)
     autor_id: int = Field(...)
+    published_at: Optional[datetime] = Field()
+    updated_at: Optional[datetime] = Field()
 
 
 @router.get(
@@ -36,7 +38,9 @@ def get_articles():
     try:
         article_getter = AllArticleGetter()
         articles = article_getter.run()
-        articles_response = [GetAllArticlesResponse(**article.__dict__) for article in articles]
+        articles_response = [
+            GetAllArticlesResponse(**article.__dict__) for article in articles
+        ]
     except Exception as error:
         logging.error(GET_ARTICLE_ERROR_MESSAGE, error)
     return articles_response

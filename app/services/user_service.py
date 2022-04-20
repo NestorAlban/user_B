@@ -49,3 +49,8 @@ class UserService:
     def activate_user(self, id: int) -> UserDomain:
         user = self.alchemy_db.activate_user(id)
         return user
+
+    def get_users_simple(self):
+        users = []
+        users = self.alchemy_db.get_all_users_simple()
+        return users

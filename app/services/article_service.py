@@ -20,7 +20,18 @@ class ArticleService:
         articles = self.alchemy_db.get_all_articles()
         return articles
 
-    def create_article(self, title: str, autor_id: int) -> ArticleDomain:
-        article = self.alchemy_db.create_article(title, autor_id)
+    def create_article(self, title: str, information: str, autor_id: int) -> ArticleDomain:
+        article = self.alchemy_db.create_article(title, information, autor_id)
         return article
 
+    def get_one_user_articles(self, id: int) -> List[Article]:
+        articles = self.alchemy_db.get_one_user_articles(id)
+        return articles
+
+    def get_active_users_articles(self) -> List[Article]:
+        articles = self.alchemy_db.get_active_users_articles()
+        return articles
+
+    def update_one_user_article(self, id: int, title: str, information: str) -> ArticleDomain:
+        articles = self.alchemy_db.update_one_user_article(id, title, information)
+        return articles
