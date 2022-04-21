@@ -8,7 +8,7 @@ class AllUsersArticlesGetter:
         pass
 
     def run(self) -> List[User]:
-        users = []
-        user_service = BothService()
-        users = user_service.get_users()
-        return users
+        users_articles = []
+        both_service = BothService()
+        users_articles = both_service.get_users()
+        return users_articles

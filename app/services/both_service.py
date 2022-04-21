@@ -15,6 +15,6 @@ class BothService:
         pass
 
     def get_users(self) -> List[User]:
-        users = []
-        users = self.alchemy_db.get_all_users_articles()
-        return users
+        users_articles = []
+        users_articles = self.alchemy_db.get_all_users_articles()
+        return users_articles

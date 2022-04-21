@@ -17,7 +17,7 @@ USERS_ENDPOINT_SUMMARY: Final = "Show all Users Articles"
 USERS_ENDPOINT_PATH: Final = "/users_articles"
 
 
-class GetAllUsersResponse(BaseModel):
+class GetAllUsersArticlesResponse(BaseModel):
     id: int = Field(...)
     name: str = Field(...)
     email: str = Field(...)
@@ -26,17 +26,17 @@ class GetAllUsersResponse(BaseModel):
 
 @router.get(
     path=USERS_ENDPOINT_PATH,
-    response_model=List[GetAllUsersResponse],
+    response_model=List[GetAllUsersArticlesResponse],
     status_code=status.HTTP_200_OK,
     summary=USERS_ENDPOINT_SUMMARY,
     tags=["Both"],
 )
 def get_users():
-    users_response = []
+    users_articles_response = []
     try:
         user_getter = AllUsersArticlesGetter()
-        users = user_getter.run()
-        users_response = [GetAllUsersResponse(**user.__dict__) for user in users]
+        users_articles = user_getter.run()
+        # users_articles_response = [GetAllUsersArticlesResponse(**ua.__dict__) for ua in users_articles]
     except Exception as error:
         logging.error(GET_USER_ERROR_MESSAGE, error)
-    return users_response
+    return users_articles_response

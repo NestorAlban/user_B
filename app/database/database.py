@@ -153,6 +153,21 @@ class ArticleDomain:
     published_at: Optional[datetime]
     updated_at: Optional[datetime]
     autor_id: int
+
+@dataclass(frozen=True)
+class BothDomain:
+    id: int
+    name: str
+    email: str
+    is_active: Optional[bool]
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
+    id_1: int
+    title: str
+    information: str
+    published_at: Optional[datetime]
+    updated_at_1: Optional[datetime]
+    autor_id: int
     
 
 
@@ -424,23 +439,45 @@ class Db:
         return article_domain
 
     ##Both
-    def get_all_users_articles(self):
-        
-            ##1
-        articles = self.session.query(
-            User
-            ).with_entities(
-                User.id, 
-                User.name, 
-                User.email
-            ).all()
 
-            ##2
-        # articles = self.session.query(
-        #     User.id, 
-        #     User.name, 
-        #     User.email
-        #     ).all()
+    @staticmethod
+    def create_ua_domain(ua):
+        ua_domain = BothDomain(
+            ua.id, 
+            ua.name, 
+            ua.email, 
+            ua.is_active, 
+            ua.created_at, 
+            ua.updated_at,
+            ua.id_1, 
+            ua.title,
+            ua.information, 
+            ua.published_at, 
+            ua.updated_at_1,
+            ua.autor_id
+        )
+        return ua_domain
+
+
+    def get_all_users_articles(self):
+        users_articles = self.session.query(
+            User
+        ).join(
+            Article
+        ).filter(
+            Article.autor_id == User.id
+        ).all()
+        for ua_object in users_articles:
+            print("================================")
+            print(ua_object)
+            print("================================")
+            print(type(ua_object))
+            if ua_object:
+                ua_domain = Db.create_user_domain(ua_object)
+                print(ua_domain)
         self.session.close()
-        return articles
+        # ua_response = [BothDomain(**user.__dict__) for user in ua_domain]
+        # print(ua_response)
+        return users_articles
+
     

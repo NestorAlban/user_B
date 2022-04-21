@@ -52,5 +52,5 @@ class UserService:
 
     def get_users_simple(self):
         users = []
-        users = self.alchemy_db.get_all_users_simple()
+        users = self.alchemy_db.get_all_users()
         return users
