@@ -1,4 +1,5 @@
 import logging
+from re import I
 from fastapi import Body, Path
 import psycopg2
 import os
@@ -169,6 +170,24 @@ class BothDomain:
     updated_at_1: Optional[datetime]
     autor_id: int
     
+
+@dataclass(frozen=True)
+class SimpleJoinDomain:
+    user_id: int
+    article_id: int
+    user_name: str
+    article_title: str
+
+@dataclass(frozen=True)
+class OuterJoinDomain:
+    user_id: int
+    user_name: str
+    user_email: str
+    article_id: int
+    article_title: str
+    article_information: str
+    article_published: datetime
+    article_updated: datetime
 
 
 class Db:
@@ -442,42 +461,116 @@ class Db:
 
     @staticmethod
     def create_ua_domain(ua):
-        ua_domain = BothDomain(
-            ua.id, 
-            ua.name, 
-            ua.email, 
-            ua.is_active, 
-            ua.created_at, 
-            ua.updated_at,
-            ua.id_1, 
-            ua.title,
-            ua.information, 
-            ua.published_at, 
-            ua.updated_at_1,
-            ua.autor_id
+        # ua_domain = BothDomain(
+        #     ua.id, 
+        #     ua.name, 
+        #     ua.email, 
+        #     ua.is_active, 
+        #     ua.created_at, 
+        #     ua.updated_at,
+        #     ua.id_1, 
+        #     ua.title,
+        #     ua.information, 
+        #     ua.published_at, 
+        #     ua.updated_at_1,
+        #     ua.autor_id
+        # )
+        ua_domain = SimpleJoinDomain(
+            user_id=ua[0],
+            article_id=ua[1],
+            user_name=ua[2],
+            article_title=ua[3]
         )
         return ua_domain
 
+    @staticmethod
+    def create_outer_domain(ua):
+        ua_domain = OuterJoinDomain(
+            user_id=ua[0],
+            user_name=ua[1],
+            user_email=ua[2],
+            article_id=ua[3],
+            article_title=ua[4],
+            article_information=ua[5],
+            article_published=ua[6],
+            article_updated=ua[7]
+        )
+        return ua_domain
 
-    def get_all_users_articles(self):
+    def get_all_users_with_articles(self):
+        #simple join
         users_articles = self.session.query(
             User
         ).join(
             Article
         ).filter(
             Article.autor_id == User.id
-        ).all()
+        ).with_entities(
+            User.id,
+            Article.id,
+            User.name,
+            Article.title
+        )
+
+        #simple join 2
+        users_articles2 = self.session.query(
+            User
+        ).outerjoin(
+            Article
+        ).with_entities(
+            User.id,
+            Article.id,
+            User.name,
+            Article.title
+        )
+        
+        users_articles_response = []
         for ua_object in users_articles:
-            print("================================")
             print(ua_object)
-            print("================================")
-            print(type(ua_object))
             if ua_object:
-                ua_domain = Db.create_user_domain(ua_object)
+                ua_domain = Db.create_ua_domain(ua_object)
+                print("===")
                 print(ua_domain)
+                users_articles_response.append(ua_domain)
         self.session.close()
         # ua_response = [BothDomain(**user.__dict__) for user in ua_domain]
         # print(ua_response)
-        return users_articles
+        print(users_articles)
+        return users_articles_response
+
+    def get_users_articles(self):
+        #simple join 2
+        users_articles2 = self.session.query(
+            User
+        ).outerjoin(
+            Article
+        ).with_entities(
+            User.id,
+            User.name,
+            User.email,
+            Article.id,
+            Article.title,
+            Article.information,
+            Article.published_at,
+            Article.updated_at
+        )
+        
+        users_articles_response = []
+        for ua_object in users_articles2:
+            print(ua_object)
+            if ua_object:
+                ua_domain = Db.create_outer_domain(ua_object)
+                print("===")
+                print(ua_domain)
+                print(type(ua_domain))
+                print(ua_object[6], type(ua_object[6]))
+                users_articles_response.append(ua_domain)
+        self.session.close()
+        # ua_response = [BothDomain(**user.__dict__) for user in ua_domain]
+        # print(ua_response)
+        print(users_articles2)
+        return users_articles_response
+
+
 
     

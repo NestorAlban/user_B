@@ -53,15 +53,16 @@ def create_user(new_user_data: CreateUserInput):
                 name=name, 
                 email=email)
             )
-            success = True
-            user_response = CreateUserResponse.construct(
-                id=user.id,
-                name=user.name,
-                email=user.email,
-                is_active=user.is_active,
-                created_at=user.created_at,
-                updated_at=user.updated_at,
-            ).dict(by_alias=True)
+            if user:
+                user_response = CreateUserResponse.construct(
+                    id=user.id,
+                    name=user.name,
+                    email=user.email,
+                    is_active=user.is_active,
+                    created_at=user.created_at,
+                    updated_at=user.updated_at,
+                ).dict(by_alias=True)
+                success = True
     except Exception as error:
         logging.error(CREATE_USER_ERROR_MESSAGE, error)
     return {SUCCESS_KEY: success, USER_KEY: user_response}

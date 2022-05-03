@@ -3,12 +3,12 @@ from typing import List
 from app.models import User
 
 
-class AllUsersArticlesGetter:
+class AllUsersWithArticlesGetter:
     def __init__(self):
         pass
 
-    def run(self) -> List[User]:
+    def run(self):
         users_articles = []
         both_service = BothService()
-        users_articles = both_service.get_users()
+        users_articles = both_service.get_all_users_with_articles()
         return users_articles

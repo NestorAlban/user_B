@@ -39,5 +39,6 @@ from .update_articles_usercase import ArticleModParams
 
 ##Both
 
-from .get_all_users_articles_usercase import AllUsersArticlesGetter
+from .get_all_users_with_articles_usercase import AllUsersWithArticlesGetter
 
+from .get_users_articles_usercase import UsersArticlesGetter
