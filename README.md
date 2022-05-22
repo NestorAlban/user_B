@@ -15,41 +15,18 @@ fastapi to create a user
 2. Run fastapi
     - Run with uvicorn
         ```shell
-        python -m uvicorn app.main:app --host 0.0.0.0
+        python -m uvicorn app.main:app --host localhost --reload
         ```
-
-
-# @app.put(
-#     path="/updateuser",
-#     response_model=list[UserBase],
-#     status_code=status.HTTP_200_OK,
-#     summary="Update a user"
-# )
-# def update_a_user(user_update: UserBase=Body(...)):
-#     print("=update user and show users=")
-#     users_list = []
-#     db = Database()
-#     connect=db.connect_db()
-#     connect
-#     cursor = db.cursor
-#     user_dict=user_update.dict()
-#     user_dict["name"]=str(user_dict["name"])
-#     user_dict["mail"]=str(user_dict["mail"])
-#     user=(user_dict["name"],user_dict["mail"])
-#     cursor.execute('SELECT * FROM public."ejemplo-user"')
-#     cursor.execute(update, user)
-#     db.commit_db()
-#     cursor.execute('SELECT * FROM public."ejemplo-user"')
-#     users = cursor.fetchall()
-#     print(users)
-#     for user in users:
-#         user = UserBase(
-#             # id=user['id'],
-#             name=user['name'].strip(),
-#             mail=user[MAIL_KEY].strip() if user[MAIL_KEY] else None
-#             # is_active=user['is_active'],
-#             # status=user['status']
-#         )
-#         users_list.append(user)
-#     db.disconnect_db()
-#     return users_list
+    - Run with
+        ```shell
+        python app/main.py
+        ```
+3. Run pytest
+    ```shell
+    pytest test/test_client.py -rP
+    ´´´
+4. commit
+    - Commit with commitizen
+        ```shell
+        cz commit
+        ´´´
