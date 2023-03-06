@@ -1,0 +1,10 @@
+# Package manager:
+
+- Poetry
+
+# NEXT STEPS:
+
+- IMPLEMENT ORM (SQLALCHEMY)
+- ADD UNIT/INTEGRATION TESTS (PYTEST, unittest)
+- DOCKERIZE APP
+- DEPLOY
